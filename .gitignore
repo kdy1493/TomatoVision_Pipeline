@@ -1,0 +1,72 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Model weights and checkpoints (large files)
+*.pt
+*.pth
+*.ckpt
+*.weights
+*.onnx
+*.tflite
+*.pb
+weight/
+weights/
+checkpoints/
+checkpoint/
+
+# Experiment results (large files)
+yolo_exp/
+experiments/
+runs/
+wandb/
+mlruns/
+
+# Dataset directories (large files)
+data/
+datasets/
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Log files
+*.log
+logs/
+*.out
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace

@@ -1,0 +1,20 @@
+# train_yolo.py 실행 명령어
+# python scripts/train_yolo.py --config configs/train_yolo_exp2.yaml
+
+model: model/yolo12n.pt
+train:
+  epochs: 200
+  imgsz: 640
+  batch: 128             # (대폭 수정) 8 -> 32
+  device: 6
+  optimizer: AdamW
+  lr0: 1.0e-3
+  weight_decay: 5.0e-4   # (유지) 1.0e-4 -> 5.0e-4 (과적합 억제)
+  scheduler: Cosine
+  seed: 42
+  patience: 50      
+  mixup: 0.1           
+  project: yolo_exp/     
+  name: yolo12n_laboro_exp2
+data:
+  data_yaml: /home/kdy12/tomatovision_pipeline/data/tomato_data/laboro-tomato/data.yaml

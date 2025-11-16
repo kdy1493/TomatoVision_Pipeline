@@ -1,0 +1,46 @@
+# FiftyOne Viewer Configuration
+# ===============================
+#
+# 이 파일을 수정하여 시각화할 데이터셋을 설정하세요.
+# 아래 예제를 참고하여 coco 또는 yolo 형식에 맞게 정보를 입력한 후,
+# 이 파일의 경로를 사용하여 스크립트를 실행합니다.
+#
+# 실행 명령어:
+# python scripts/fiftyone_viewer.py --config configs/fiftyone_viewer.yaml
+#
+
+# --- COCO Dataset Example ---
+# 아래 주석을 해제하고 경로를 맞게 수정하여 사용하세요.
+# -----------------------------
+# format: "coco"
+# image_path: "data/laboro_tomato/test/images"
+# labels_path: "data/laboro_tomato/annotations/train.json"
+# dataset_name: "laboro_tomato_train"
+
+
+# --- YOLO Dataset Example ---
+# 아래 주석을 해제하고 경로를 맞게 수정하여 사용하세요.
+# -----------------------------
+# format: "yolo"
+# dataset_yaml: "data/tomato_data/laboro-tomato/data.yaml"
+# split: "train" 
+# dataset_name: "laboro_tomato_train"
+
+
+# Test Dataset with Predictions - coco
+# 아래 주석을 해제하고 경로를 맞게 수정하여 사용하세요.
+# -----------------------------
+# format: "coco"
+# image_path: "data/tomato_data/laboro-tomato/val/images"
+# labels_path: "data/tomato_data/laboro-tomato/annotations/val.json"
+# predictions_path: "yolo_exp/yolo12n_laboro_exp1/prediction_val_exp1.json"
+# dataset_name: "your-dataset-name"
+
+
+# # Test Dataset with Predictions - yolo
+# 아래 주석을 해제하고 경로를 맞게 수정하여 사용하세요.
+format: "yolo"
+dataset_yaml: "data/tomato_data/laboro-tomato/data.yaml"
+split: "val" 
+dataset_name: "laboro_tomato_val"
+predictions_path: "yolo_exp/yolo12n_laboro_exp3/prediction_val_exp3.json"

@@ -1,0 +1,40 @@
+[project]
+name = "tomatovision-pipeline"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "autoroot>=1.0.1",
+    "autorootcwd>=1.0.1",
+    "fiftyone>=1.10.0",
+    "kaggle>=1.5.16",
+    "kagglehub>=0.3.13",
+    "matplotlib>=3.10.7",
+    "opencv-python>=4.11.0.86",
+    "Pillow>=10.0.0",
+    "PyYAML>=6.0.0",
+    "tqdm>=4.66.0",
+    "ultralytics>=8.3.225",
+    "torch",
+    "torchvision",
+    "torchaudio",
+    "transformers>=4.57.1",
+    "rerun-sdk[all]>=0.27.0",
+    "einops>=0.8.1",
+    "kornia>=0.8.2",
+    "timm>=1.0.22",
+    "ipykernel>=6.31.0",
+    "rosbags>=0.11.0",
+]
+
+
+[[tool.uv.index]]
+name = "pytorch-cu121"
+url = "https://download.pytorch.org/whl/cu121"
+explicit = true 
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu121" }
+torchvision = { index = "pytorch-cu121" }
+torchaudio = { index = "pytorch-cu121" }

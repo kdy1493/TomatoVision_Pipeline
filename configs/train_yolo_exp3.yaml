@@ -1,0 +1,24 @@
+# train_yolo.py 실행 명령어
+# python scripts/train_yolo.py --config configs/train_yolo_exp3.yaml
+# 
+# 튜닝 결과(best_hyperparameters.yaml)를 사용한 전체 학습
+# Best fitness=0.72016, mAP50=0.85982
+
+model: model/yolo12n.pt
+train:
+  epochs: 200
+  imgsz: 640
+  batch: 32                # 튜닝에서 사용한 배치 크기
+  device: 6
+  optimizer: AdamW         # 튜닝에서 사용한 옵티마이저
+  lr0: 0.00938            # 튜닝 결과: 0.00938
+  weight_decay: 0.00066   # 튜닝 결과: 0.00066
+  scheduler: Cosine
+  seed: 42
+  patience: 50
+  mixup: 0.0              # 튜닝 결과: 0.0
+  project: yolo_exp/     
+  name: yolo12n_laboro_exp3
+data:
+  data_yaml: /home/kdy12/tomatovision_pipeline/data/tomato_data/laboro-tomato/data.yaml
+

@@ -1,0 +1,15 @@
+# predict_yolo.py 실행 명령어
+# python scripts/predict_yolo.py --config configs/predict_yolo_exp3.yaml
+
+model: yolo_exp/yolo12n_laboro_exp3/weights/best.pt
+
+predict:
+  split: val  # 'train' 또는 'val'
+  conf: 0.25  # 신뢰도 임계값
+  # output: prediction_val_exp2.json  # 출력 파일명 (선택사항, 없으면 자동 생성)
+  # 실험 디렉토리 하위에 자동 저장됨: yolo_exp/yolo12n_laboro_exp2/prediction_val_exp2.json
+
+data:
+  # convert_to_yolo.py 출력 data.yaml 경로
+  data_yaml: /home/kdy12/tomatovision_pipeline/data/tomato_data/laboro-tomato/data.yaml
+

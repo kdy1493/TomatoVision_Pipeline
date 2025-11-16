@@ -1,0 +1,39 @@
+ros_topics:
+  image_rect: "/zed/zed_node/left/image_rect_color"
+  image_left: "/zed/zed_node/left/image_rect_color"
+  image_right: "/zed/zed_node/right/image_rect_color"
+  depth: "/zed/zed_node/depth/depth_registered"
+  camera_rgb_info: "/zed/zed_node/rgb_raw/camera_info"
+  camera_left_info: "/zed/zed_node/left/camera_info"
+  camera_right_info: "/zed/zed_node/right/camera_info"
+  point_cloud: "/zed/zed_node/point_cloud/cloud_registered"
+  odometry: "/zed/zed_node/odom"
+
+
+depth_source:
+  depth_max : 2.5
+  depth_min : 0.4
+
+preprocess:
+  tolerance_ns: 200000000  # 200ms window for stereo pairing
+
+visualization:
+  point_radius: 0.005
+  depth_thr_max: 1.0
+  depth_thr_min: 0.4
+  use_segmentation: true
+  use_segmentation_type: "video_mask"  # "birefnet" 또는 "video_mask"
+  image_plane_distance: 0.1 # 카메라 프러스텀 크기 조정 가능
+  traj_radius: 0.001
+  baseline_m: 0.12
+  
+  # VideoMaskSegmenter (YOLO + FastSAM) 설정
+  yolo_model_path: "model/best.pt"
+  fastsam_model_path: "model/FastSAM-s.pt"
+  yolo_conf_thres: 0.25
+  yolo_imgsz: 640
+  segmentation_device: null  # null이면 자동 선택 (CUDA 우선)
+
+# Model paths
+models:
+  disparity_weights_path: "models/model_best_bp2.pth"
