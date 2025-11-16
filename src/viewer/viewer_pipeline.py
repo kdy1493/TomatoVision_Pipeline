@@ -34,6 +34,7 @@ from src.preprocess.sensor_module import process_odometry
 from src.preprocess.utils.depthmap_color import colorize_depth
 from src.viewer.rerun_blueprint import setup_rerun_blueprint, log_description
 from src.viewer.point_cloud import rotate_pointcloud
+from src.viewer.bbox_3d_visualizer import BBox3DVisualizer
 from src.model.BiRefNet_segmenter import ImageSegmenter
 from src.model.video_mask_segmenter import VideoMaskSegmenter, DummySegmenter
 
@@ -82,6 +83,18 @@ class ViewerPipeline:
         # 메타데이터, 설정 파싱 및 비디오 초기화
         self._parse_meta_and_config()
         self._init_video_captures()
+        
+        # 3D 바운딩박스 시각화 초기화 (video_mask 사용 시)
+        self.bbox_visualizer = None
+        if seg_type == "video_mask":
+            self.bbox_visualizer = BBox3DVisualizer(
+                fx=self.fx,
+                fy=self.fy,
+                cx=self.cx,
+                cy=self.cy,
+                depth_min=self.meta_dmin,
+                depth_max=self.meta_dmax
+            )
 
     # ---------------------------------------------------------
     # Config 및 JSON 파일 로드
@@ -108,11 +121,6 @@ class ViewerPipeline:
     # 메타데이터 및 시각화 파라미터 파싱
     # ---------------------------------------------------------
     def _parse_meta_and_config(self):
-        # meta.json 로드 확인
-        if self.meta is None:
-            print("[WARNING] meta.json을 찾을 수 없습니다. 기본값을 사용합니다.")
-            self.meta = {}
-        
         # 전처리 시점의 파라미터 (Depth 복원용)
         self.meta_dmin = float(self.meta.get("depth_min", 0.4))
         self.meta_dmax = float(self.meta.get("depth_max", 0.85))
@@ -230,6 +238,10 @@ class ViewerPipeline:
             
             self._process_and_log_depth(dep_foundation_u8, ok_dep_foundation, rgb_np, "foundation")
             self._process_and_log_depth(dep_zed_u8, ok_dep_zed, rgb_np, "zed")
+            
+            # 3D 바운딩박스 로깅 (video_mask 사용 시)
+            if self.bbox_visualizer is not None and ok_dep_foundation:
+                self._log_3d_bboxes(rgb_np, dep_foundation_u8)
 
             idx += 1
 
@@ -361,6 +373,54 @@ class ViewerPipeline:
             
             color_rgb = colorize_depth(depth_m, auto_percentile=(2.0, 98.0))
             rr.log(f"image/depthmap_{source_name}", rr.Image(color_rgb))
+
+    # ---------------------------------------------------------
+    # 3D 바운딩박스 로깅 (YOLO 탐지 기반)
+    # ---------------------------------------------------------
+    def _log_3d_bboxes(self, rgb_np: np.ndarray, dep_u8: np.ndarray):
+        """
+        YOLO 탐지 결과로부터 3D 바운딩박스와 라벨을 로깅
+        
+        Args:
+            rgb_np: RGB 이미지 (H, W, 3)
+            dep_u8: 깊이 이미지 (0-255, uint8)
+        """
+        if rgb_np is None or dep_u8 is None:
+            return
+        
+        try:
+            # 깊이 이미지 전처리
+            if dep_u8.ndim == 3:
+                dep_u8 = dep_u8[..., 0]
+            
+            # 실제 깊이(m)로 변환
+            depth_m = (dep_u8.astype(np.float32) / 255.0) * (self.meta_dmax - self.meta_dmin) + self.meta_dmin
+            
+            # YOLO 탐지 실행
+            bgr_frame = cv2.cvtColor(rgb_np, cv2.COLOR_RGB2BGR)
+            yolo_results = self.segmenter.yolo_model(
+                bgr_frame,
+                conf=self.vis_config.get("yolo_conf_thres", 0.25),
+                imgsz=self.vis_config.get("yolo_imgsz", 640),
+                device=self.segmenter.device,
+                verbose=False
+            )
+            yolo_result = yolo_results[0]
+            
+            # YOLO 모델의 클래스 이름 추출
+            class_names = getattr(self.segmenter.yolo_model, "names", {})
+            
+            # 3D 바운딩박스 로깅
+            self.bbox_visualizer.log_3d_bboxes_from_yolo_detections(
+                yolo_result,
+                depth_m,
+                class_names=class_names,
+                confidence_threshold=self.vis_config.get("yolo_conf_thres", 0.25),
+                show_labels=True
+            )
+        
+        except Exception as e:
+            print(f"[경고] 3D 바운딩박스 로깅 실패: {e}")
 
     # ---------------------------------------------------------
     # 리소스 해제

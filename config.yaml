@@ -33,6 +33,11 @@ visualization:
   yolo_conf_thres: 0.25
   yolo_imgsz: 640
   segmentation_device: null  # null이면 자동 선택 (CUDA 우선)
+  
+  # 3D 바운딩박스 시각화 설정
+  show_3d_bbox: true        # 3D 바운딩박스 표시 여부
+  show_bbox_labels: true    # 바운딩박스 라벨 표시 여부
+  bbox_line_radius: 0.003   # 바운딩박스 라인 두께
 
 # Model paths
 models:
