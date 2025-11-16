@@ -9,18 +9,8 @@ wheels/
 # Virtual environments
 .venv
 
-# Model weights and checkpoints (large files)
-*.pt
-*.pth
-*.ckpt
-*.weights
-*.onnx
-*.tflite
-*.pb
-weight/
-weights/
-checkpoints/
-checkpoint/
+# 모델 폴더는 올라가야함 - model/ 제외하지 않음
+# .pt, .pth 파일은 model/ 폴더 안에서는 허용
 
 # Experiment results (large files)
 yolo_exp/
@@ -29,16 +19,21 @@ runs/
 wandb/
 mlruns/
 
-# Dataset directories (large files)
-data/
-datasets/
+# 데이터 제외 규칙 (exp_res_1024x576 제외하고 제외)
+data/notebook_data/
+data/tomato_data/laboro-tomato/
+data/tomato_data/tomato_video/exp_res_512x288/
+data/tomato_data/tomato_video/exp_res_2048x1152/
+data/tomato_data/tomato_video/*.mp4
+!data/tomato_data/tomato_video/exp_res_1024x576/
+
+# 기타 미디어 제외
 *.jpg
 *.jpeg
 *.png
 *.gif
 *.bmp
 *.tiff
-*.mp4
 *.avi
 *.mov
 *.mkv
@@ -70,3 +65,4 @@ Thumbs.db
 .idea/
 *.sublime-project
 *.sublime-workspace
+
