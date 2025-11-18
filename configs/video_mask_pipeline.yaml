@@ -4,14 +4,14 @@
 # python scripts/video_mask_pipeline.py --config configs/video_mask_pipeline.yaml
 
 input:
-  video_path: "data/tomato_data/tomato_video/smartfarm_tomato_540960.mp4"  # 입력 비디오 파일 경로
+  video_path: "data/tomato_data/tomato_video/smartfarm_251114/rgb.mp4"  # 입력 비디오 파일 경로
 
 models:
-  yolo: "yolo_exp/yolo12n_laboro_exp3/weights/best.pt"  # YOLO 모델 경로
+  yolo: "model/best.pt"  # YOLO 모델 경로
   fastsam: "model/FastSAM-s.pt"  # FastSAM 모델 경로
 
 predict:
-  conf: 0.6 # YOLO 신뢰도 임계값
+  conf: 0.80 # YOLO 신뢰도 임계값
   device: cuda  # 사용할 디바이스 ('cuda', 'cpu', 또는 null이면 자동 선택)
 
 output:

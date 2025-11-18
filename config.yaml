@@ -30,7 +30,7 @@ visualization:
   # VideoMaskSegmenter (YOLO + FastSAM) 설정
   yolo_model_path: "model/best.pt"
   fastsam_model_path: "model/FastSAM-s.pt"
-  yolo_conf_thres: 0.25
+  yolo_conf_thres: 0.80
   yolo_imgsz: 640
   segmentation_device: null  # null이면 자동 선택 (CUDA 우선)
   

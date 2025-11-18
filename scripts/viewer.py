@@ -1,5 +1,5 @@
 ''' 
-실행 명령어 : python scripts/viewer.py data/tomato_data/tomato_video/exp_res_1024x576
+실행 명령어 : python scripts/viewer.py data/tomato_data/tomato_video/
 '''
 
 import autorootcwd

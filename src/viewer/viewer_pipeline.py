@@ -385,7 +385,7 @@ class ViewerPipeline:
             rgb_np: RGB 이미지 (H, W, 3)
             dep_u8: 깊이 이미지 (0-255, uint8)
         """
-        if rgb_np is None or dep_u8 is None:
+        if rgb_np is None or dep_u8 is None or self.bbox_visualizer is None:
             return
         
         try:
@@ -395,6 +395,9 @@ class ViewerPipeline:
             
             # 실제 깊이(m)로 변환
             depth_m = (dep_u8.astype(np.float32) / 255.0) * (self.meta_dmax - self.meta_dmin) + self.meta_dmin
+            
+            # 깊이값 범위 확인 및 보정
+            depth_m = np.clip(depth_m, self.meta_dmin, self.meta_dmax)
             
             # YOLO 탐지 실행
             bgr_frame = cv2.cvtColor(rgb_np, cv2.COLOR_RGB2BGR)
@@ -411,12 +414,12 @@ class ViewerPipeline:
             class_names = getattr(self.segmenter.yolo_model, "names", {})
             
             # 3D 바운딩박스 로깅
-            self.bbox_visualizer.log_3d_bboxes_from_yolo_detections(
+            self.bbox_visualizer.log_3d_bboxes_from_yolo(
                 yolo_result,
                 depth_m,
                 class_names=class_names,
-                confidence_threshold=self.vis_config.get("yolo_conf_thres", 0.25),
-                show_labels=True
+                conf_thresh=self.vis_config.get("yolo_conf_thres", 0.25),
+                show_centers=True
             )
         
         except Exception as e:

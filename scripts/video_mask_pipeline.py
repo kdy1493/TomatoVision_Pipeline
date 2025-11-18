@@ -416,8 +416,8 @@ def main():
     parser.add_argument('--config', type=str, required=True, help='설정 파일 경로 (YAML)')
     args = parser.parse_args()
 
-    # 설정 파일 로드
-    with open(args.config, 'r') as f:
+    # 설정 파일 로드 (UTF-8 인코딩 명시)
+    with open(args.config, 'r', encoding='utf-8') as f:
         cfg = yaml.safe_load(f)
 
     # 필수 설정
