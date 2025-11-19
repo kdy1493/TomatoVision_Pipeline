@@ -1,5 +1,5 @@
 ''' 
-실행 명령어 : python scripts/viewer.py data/tomato_data/tomato_video/
+실행 명령어 : python scripts/viewer.py data/tomato_data/tomato_video/smartfarm_251114
 '''
 
 import autorootcwd

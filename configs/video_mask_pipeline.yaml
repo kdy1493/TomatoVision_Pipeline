@@ -11,7 +11,7 @@ models:
   fastsam: "model/FastSAM-s.pt"  # FastSAM 모델 경로
 
 predict:
-  conf: 0.80 # YOLO 신뢰도 임계값
+  conf: 0.85 # YOLO 신뢰도 임계값
   device: cuda  # 사용할 디바이스 ('cuda', 'cpu', 또는 null이면 자동 선택)
 
 output:
