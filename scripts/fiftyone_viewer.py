@@ -10,7 +10,7 @@ COCO 또는 YOLO 형식의 객체 탐지 데이터셋을 FiftyOne으로 로드�
 1. `configs/fiftyone_viewer.yaml` 파일을 열어 시각화할 데이터셋 정보를 수정합니다.
 
 2. 아래 명령어를 실행합니다.
-   python scripts/fiftyone_viewer.py --config config/fiftyone_viewer.yaml
+   python scripts/fiftyone_viewer.py --config configs/fiftyone_viewer.yaml
 
 [설정 파일 인자 설명]
 format: 데이터셋 형식 ('coco' 또는 'yolo').

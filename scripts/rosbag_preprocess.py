@@ -1,24 +1,24 @@
-# preprocess.py
+# rosbag_preprocess.py
 """
 ZED ROS2 Bag 전처리 스크립트 - 클래스 기반 구조
 
 PreprocessPipeline 클래스를 사용하여 전처리 수행
 
 [기본 사용법]
-    uv run -- python scripts_edit/preprocess_edit.py <bag_path> --output-dir <output_directory>
+    uv run -- python scripts/rosbag_preprocess.py <bag_path> --output-dir <output_directory>
 
 [예제]
     # Foundation Stereo depth
-    uv run -- python scripts_edit/preprocess_edit.py data/rosbag2_5 --output-dir output/251107_data5_1
+    uv run -- python scripts/rosbag_preprocess.py data/rosbag2_5 --output-dir output/251107_data5_1
     
     # ZED sensor depth
-    uv run -- python scripts_edit/preprocess_edit.py data/rosbag2_5 --output-dir output/data5_zed_251107 --depth-source zed
+    uv run -- python scripts/rosbag_preprocess.py data/rosbag2_5 --output-dir output/data5_zed_251107 --depth-source zed
     
     # Foundation + ZED depth (both)
-    uv run -- python scripts_edit/preprocess_edit.py data/rosbag2_5 --output-dir output/data5_both_251107 --depth-source both
+    uv run -- python scripts/rosbag_preprocess.py data/rosbag2_5 --output-dir output/data5_both_251107 --depth-source both
 
     # 해상도 및 FPS 지정
-    uv run -- python scripts_edit/preprocess_edit.py data/rosbag2_5 --output-dir output/data5_hd --width 1920 --height 1080 --fps 30
+    uv run -- python scripts/rosbag_preprocess.py data/rosbag2_5 --output-dir output/data5_hd --width 1920 --height 1080 --fps 30
 
 [주요 옵션]
     bag_path                  : ROS2 bag 파일 경로 (필수)
@@ -58,7 +58,7 @@ PreprocessPipeline 클래스를 사용하여 전처리 수행
 
 [요구사항]
     - autorootcwd 패키지 필요
-    - config.yaml에 ROS 토픽 설정 필요
+    - configs/sensor_config.yaml에 ROS 토픽 설정 필요
     - models/model_best_bp2.pth 모델 파일 필요 (foundation depth 사용 시)
 """
 

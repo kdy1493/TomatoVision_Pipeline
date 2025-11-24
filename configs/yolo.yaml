@@ -1,0 +1,66 @@
+# 통합 YOLO 설정 파일
+# 사용법:
+#   python scripts/yolo.py --config configs/yolo.yaml --mode train
+#   python scripts/yolo.py --config configs/yolo.yaml --mode tune
+#   python scripts/yolo.py --config configs/yolo.yaml --mode predict
+
+# 실행 모드 (train, tune, predict 중 하나)
+# --mode 인자로 오버라이드 가능
+mode: train
+
+# 모델 경로
+# train/tune 모드: 사전 학습된 모델 (예: model/yolo12n.pt)
+# predict 모드: 학습된 모델 (예: yolo_exp/yolo12n_laboro_exp1/weights/best.pt)
+model: weight/yolo12n.pt
+
+# 데이터 설정 (공통)
+data:
+  data_yaml: data/tomato_data/laboro-tomato/data.yaml
+  # 또는 dataset_root 사용 가능:
+  # dataset_root: data/tomato_data/laboro-tomato
+
+# 학습 설정 (mode: train)
+train:
+  epochs: 200
+  imgsz: 640
+  batch: 8
+  device: 0  # GPU 번호 또는 "cpu"
+  optimizer: AdamW
+  lr0: 1.0e-3
+  weight_decay: 1.0e-4
+  scheduler: Cosine  # 또는 "Linear"
+  patience: 50
+  mixup: 0.0
+  seed: 42
+  workers: 0  # Windows multiprocessing 이슈 방지 (0=단일 프로세스, 8=멀티프로세스)
+  project: yolo_exp/  # 저장될 기본 폴더
+  name: yolo12n_laboro_exp1  # 실험 이름
+
+# 튜닝 설정 (mode: tune)
+tune:
+  # [핵심] 튜닝 시도 횟수
+  iterations: 100
+  # [핵심] 튜닝 1회당 학습할 에포크
+  epochs: 50
+  # 튜닝 중 고정할 값들
+  imgsz: 640
+  batch: 64  # GPU 메모리가 허용하는 최대치
+  optimizer: AdamW  # 튜닝 알고리즘이 사용할 기본 옵티마이저
+  device: 0  # 튜닝을 실행할 GPU
+  # 튜닝 결과 저장 경로
+  project: yolo_exp/
+  name: yolo12n_laboro_tune  # 튜닝 실험 이름
+  # 기타 튜닝 옵션
+  plots: true  # 튜닝 결과 차트 저장
+  save: true  # 최적 모델/하이퍼파라미터 저장
+  val: true
+
+# 예측 설정 (mode: predict)
+# 주의: predict 모드 사용 시 model 경로를 학습된 모델로 변경 필요
+# 예: model: yolo_exp/yolo12n_laboro_exp1/weights/best.pt
+predict:
+  split: val  # 'train' 또는 'val'
+  conf: 0.25  # 신뢰도 임계값
+  # output: prediction_val_exp1.json  # 출력 파일명 (선택사항, 없으면 자동 생성)
+  # 실험 디렉토리 하위에 자동 저장됨: yolo_exp/yolo12n_laboro_exp1/prediction_val_exp1.json
+

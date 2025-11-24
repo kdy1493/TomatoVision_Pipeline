@@ -1,10 +1,13 @@
 ''' 
+laboro-tomato 데이터셋 다운로드 및 설정
 kagglehub에서 데이터셋 다운로드 후 data/tomato_data/laboro-tomato 에 이동
-실행 명령어: python scripts/laboro_tomato_down_setting.py
 test.json을 val.json으로 이름 변경
+클래스 ID 재매핑 (6개 클래스 → 3개 클래스)
 data.yaml 파일 생성
 기존 kagglehub 캐시 디렉토리 삭제
-3종 클래스로 변경 : green, half_ripened, fully_ripened
+3종 클래스로 변경 : fully_ripened (0), half_ripened (1), green (2)
+
+실행 명령어: python scripts/download_dataset.py
 '''
 import autorootcwd
 import kagglehub
@@ -104,6 +107,146 @@ def rename_test_to_val(dataset_dir: str) -> bool:
         return False
 
 
+def remap_class_ids(dataset_dir: str) -> bool:
+    """COCO annotation JSON과 YOLO 라벨 파일의 클래스 ID를 재매핑합니다.
+    
+    매핑 규칙:
+    - fully_ripened → 0
+    - half_ripened → 1
+    - green → 2
+    
+    Args:
+        dataset_dir: 데이터셋 디렉토리 경로
+    
+    Returns:
+        재매핑 성공 여부
+    """
+    annotations_dir = Path(dataset_dir) / "annotations"
+    
+    # COCO annotation에서 클래스 매핑 생성
+    coco_data = None
+    if (annotations_dir / "train.json").exists():
+        with open(annotations_dir / "train.json", 'r', encoding='utf-8') as f:
+            coco_data = json.load(f)
+    elif (annotations_dir / "val.json").exists():
+        with open(annotations_dir / "val.json", 'r', encoding='utf-8') as f:
+            coco_data = json.load(f)
+    
+    if not coco_data or 'categories' not in coco_data:
+        print("경고: COCO annotation 파일을 찾을 수 없습니다. 클래스 ID 재매핑을 건너뜁니다.")
+        return False
+    
+    categories = sorted(coco_data['categories'], key=lambda x: x['id'])
+    
+    # 클래스 이름에서 접두사 제거하고 목표 YOLO ID 매핑 생성
+    # fully_ripened → 0, half_ripened → 1, green → 2
+    coco_id_to_yolo_id = {}
+    class_name_to_yolo_id = {
+        'fully_ripened': 0,
+        'half_ripened': 1,
+        'green': 2
+    }
+    
+    for cat in categories:
+        class_name = cat['name']
+        # 접두사 제거 (b_ 또는 l_)
+        if class_name.startswith('b_') or class_name.startswith('l_'):
+            class_name = class_name[2:]
+        
+        # 목표 클래스에 매핑
+        if class_name in class_name_to_yolo_id:
+            coco_id_to_yolo_id[cat['id']] = class_name_to_yolo_id[class_name]
+    
+    print(f"클래스 ID 매핑 (COCO ID → YOLO ID): {coco_id_to_yolo_id}")
+    
+    # 1. COCO annotation JSON 파일 수정
+    for split in ['train', 'val']:
+        json_path = annotations_dir / f"{split}.json"
+        if not json_path.exists():
+            continue
+        
+        with open(json_path, 'r', encoding='utf-8') as f:
+            coco_data = json.load(f)
+        
+        # categories 필터링 및 재매핑
+        new_categories = []
+        for cat in coco_data['categories']:
+            class_name = cat['name']
+            if class_name.startswith('b_') or class_name.startswith('l_'):
+                class_name = class_name[2:]
+            
+            if class_name in class_name_to_yolo_id:
+                new_cat = cat.copy()
+                new_cat['id'] = class_name_to_yolo_id[class_name]
+                new_cat['name'] = class_name
+                new_categories.append(new_cat)
+        
+        # annotations의 category_id 재매핑
+        valid_annotations = []
+        for ann in coco_data['annotations']:
+            old_id = ann['category_id']
+            if old_id in coco_id_to_yolo_id:
+                ann['category_id'] = coco_id_to_yolo_id[old_id]
+                valid_annotations.append(ann)
+        
+        # 매핑된 annotation만 유지
+        coco_data['annotations'] = valid_annotations
+        coco_data['categories'] = sorted(new_categories, key=lambda x: x['id'])
+        
+        # JSON 파일 저장
+        with open(json_path, 'w', encoding='utf-8') as f:
+            json.dump(coco_data, f, indent=2, ensure_ascii=False)
+        
+        print(f"{split}.json: {len(coco_data['annotations'])}개 annotation, {len(coco_data['categories'])}개 클래스")
+    
+    # 2. YOLO 라벨 파일(.txt) 수정
+    # 라벨 파일의 클래스 ID는 원본 COCO ID일 수 있으므로 동일한 매핑 사용
+    for split in ['train', 'val']:
+        labels_dir = Path(dataset_dir) / split / "labels"
+        if not labels_dir.exists():
+            continue
+        
+        label_files = list(labels_dir.glob("*.txt"))
+        modified_count = 0
+        skipped_count = 0
+        
+        for label_path in label_files:
+            with open(label_path, 'r') as f:
+                lines = f.readlines()
+            
+            new_lines = []
+            for line in lines:
+                if not line.strip():
+                    continue
+                
+                parts = line.strip().split()
+                if len(parts) < 5:
+                    continue
+                
+                old_class_id = int(parts[0])
+                
+                # COCO ID를 YOLO ID로 매핑
+                if old_class_id in coco_id_to_yolo_id:
+                    parts[0] = str(coco_id_to_yolo_id[old_class_id])
+                    new_lines.append(' '.join(parts) + '\n')
+                else:
+                    # 매핑되지 않은 클래스는 건너뜀
+                    skipped_count += 1
+            
+            # 파일 저장
+            if new_lines:
+                with open(label_path, 'w') as f:
+                    f.writelines(new_lines)
+                modified_count += 1
+            else:
+                # 라벨이 없으면 빈 파일로 유지
+                label_path.touch()
+        
+        print(f"{split}/labels: {modified_count}개 파일 수정 완료, {skipped_count}개 라벨 건너뜀")
+    
+    return True
+
+
 def create_data_yaml(dataset_dir: str) -> bool:
     """COCO annotation 파일에서 클래스 정보를 추출하여 data.yaml 파일을 생성합니다.
     
@@ -136,30 +279,13 @@ def create_data_yaml(dataset_dir: str) -> bool:
         print(f"경고: {annotation_file}에 categories 정보가 없습니다. data.yaml 생성을 건너뜁니다.")
         return False
     
+    # remap_class_ids()에서 이미 재매핑된 categories를 사용
+    # ID는 이미 0, 1, 2로 재매핑되고 name도 접두사가 제거된 상태
+    # 원본 ID 1,4: b_fully_ripened, l_fully_ripened -> YOLO ID 0: fully_ripened
+    # 원본 ID 2,5: b_half_ripened, l_half_ripened -> YOLO ID 1: half_ripened
+    # 원본 ID 3,6: b_green, l_green -> YOLO ID 2: green
     categories = sorted(coco_data['categories'], key=lambda x: x['id'])
-    
-    # 클래스 이름에서 접두사(b_, l_) 제거하고 중복 제거
-    # b_fully_ripened, l_fully_ripened → fully_ripened
-    # b_half_ripened, l_half_ripened → half_ripened
-    # b_green, l_green → green
-    # 원본 annotation의 ID 순서를 유지하여 매핑
-    # 원본 ID 1: b_fully_ripened -> fully_ripened (YOLO ID 0)
-    # 원본 ID 2: b_half_ripened -> half_ripened (YOLO ID 1)
-    # 원본 ID 3: b_green -> green (YOLO ID 2)
-    class_id_to_name = {}
-    for cat in categories:
-        class_name = cat['name']
-        # 접두사 제거 (b_ 또는 l_)
-        if class_name.startswith('b_') or class_name.startswith('l_'):
-            class_name = class_name[2:]  # 앞의 2글자(b_ 또는 l_) 제거
-        
-        # 원본 ID를 기반으로 매핑 (b_와 l_는 같은 클래스이므로 첫 번째 ID만 사용)
-        if class_name not in class_id_to_name:
-            class_id_to_name[class_name] = cat['id']
-    
-    # 원본 annotation의 ID 순서대로 정렬 (fully_ripened, half_ripened, green)
-    # ID 1, 2, 3 순서를 유지
-    class_names = sorted(class_id_to_name.keys(), key=lambda x: class_id_to_name[x])
+    class_names = [cat['name'] for cat in categories]
     num_classes = len(class_names)
     
     # 절대 경로 계산
@@ -214,10 +340,13 @@ def main():
     # 3. test.json을 val.json으로 이름 변경
     rename_test_to_val(target_dir)
     
-    # 4. data.yaml 파일 생성
+    # 4. 클래스 ID 재매핑 (COCO JSON + YOLO 라벨 파일)
+    remap_class_ids(target_dir)
+    
+    # 5. data.yaml 파일 생성
     create_data_yaml(target_dir)
     
-    # 5. 캐시 삭제
+    # 6. 캐시 삭제
     cleanup_cache()
     
     print("\n데이터셋 다운로드 및 설정이 완료되었습니다.")

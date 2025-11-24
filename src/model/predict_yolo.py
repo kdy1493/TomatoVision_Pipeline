@@ -1,8 +1,12 @@
 """
-YOLO 모델을 사용하여 이미지에 대한 예측을 수행하고 결과를 저장하는 스크립트
+YOLO 모델을 사용하여 이미지에 대한 예측을 수행하고 결과를 저장하는 모듈
 
 사용법:
-python scripts/predict_yolo.py --config configs/predict_yolo_exp1.yaml
+    # 직접 실행
+    python -m src.model.predict_yolo --config configs/predict_yolo_exp1.yaml
+    
+    # 통합 스크립트 사용
+    python scripts/yolo.py --config configs/yolo.yaml --mode predict
 """
 import os
 import autorootcwd
@@ -109,20 +113,8 @@ def predict_dataset(model_path, data_yaml, split='val', conf_thres=0.25):
     
     return coco_output
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=str, required=True, help='설정 파일 경로 (config.yaml)')
-    args = parser.parse_args()
-
-    with open(args.config, 'r') as f:
-        cfg = yaml.safe_load(f)
-
-    # 모델 경로
-    model_path = cfg['model']
-    if not os.path.exists(model_path):
-        raise FileNotFoundError(f'모델 파일을 찾을 수 없습니다: {model_path}')
-
-    # 데이터 설정: data.data_yaml 우선, 없으면 data.dataset_root/data.yaml 사용
+def get_data_yaml(cfg):
+    """YAML 설정에서 data.yaml 경로를 찾는 공통 함수"""
     data_yaml = None
     if 'data' in cfg and isinstance(cfg['data'], dict):
         if 'data_yaml' in cfg['data'] and cfg['data']['data_yaml']:
@@ -134,37 +126,51 @@ def main():
                 data_yaml = str(candidate)
     if not data_yaml:
         raise FileNotFoundError('YOLO data.yaml 경로를 찾을 수 없습니다. config의 data.data_yaml 또는 data.dataset_root를 확인하세요.')
+    return data_yaml
 
-    # 예측 설정
-    split = cfg['predict'].get('split', 'val')
-    conf_thres = cfg['predict'].get('conf', 0.25)
+
+def predict_mode(cfg):
+    """YOLO 모델 예측"""
+    print("--- [ Predict Mode ] ---")
     
-    # 출력 파일 경로: 모델 경로에서 실험 디렉토리 추출
+    if 'predict' not in cfg:
+        raise ValueError("YAML에 'predict' 설정 블록이 없습니다.")
+    
+    # 모델 경로
+    model_path = cfg['model']
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f'모델 파일을 찾을 수 없습니다: {model_path}')
+    
+    # 데이터 설정
+    data_yaml = get_data_yaml(cfg)
+    
+    # 예측 설정
+    predict_cfg = cfg['predict']
+    split = predict_cfg.get('split', 'val')
+    conf_thres = predict_cfg.get('conf', 0.25)
+    
+    # 출력 파일 경로
     model_path_obj = Path(model_path)
-    # weights/best.pt 또는 weights/last.pt를 제거하여 실험 디렉토리 찾기
     if model_path_obj.parent.name == 'weights':
-        exp_dir = model_path_obj.parent.parent  # yolo_exp/yolo12n_laboro_exp1/
+        exp_dir = model_path_obj.parent.parent
     else:
-        exp_dir = model_path_obj.parent  # 실험 디렉토리 직접 지정된 경우
+        exp_dir = model_path_obj.parent
     
     # 출력 파일명
-    if 'output' in cfg['predict'] and cfg['predict']['output']:
-        output_filename = cfg['predict']['output']
+    if 'output' in predict_cfg and predict_cfg['output']:
+        output_filename = predict_cfg['output']
     else:
-        # 자동 생성: prediction_val_exp1.json 형식
-        exp_name = exp_dir.name  # yolo12n_laboro_exp1
-        # exp1, exp2 등 추출 (exp 뒤의 숫자)
+        exp_name = exp_dir.name
         exp_match = re.search(r'exp(\d+)', exp_name)
         if exp_match:
             exp_num = exp_match.group(1)
             output_filename = f"prediction_{split}_exp{exp_num}.json"
         else:
-            # exp 패턴이 없으면 전체 이름 사용
             output_filename = f"prediction_{split}_{exp_name}.json"
     
     output_path = exp_dir / output_filename
     os.makedirs(exp_dir, exist_ok=True)
-
+    
     print(f"Using model: {model_path}")
     print(f"Dataset config: {data_yaml}")
     print(f"Split: {split}")
@@ -182,6 +188,17 @@ def main():
     print(f"Total images: {len(results['images'])}")
     print(f"Total predictions: {len(results['annotations'])}")
     print(f"Results saved to: {output_path}")
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config', type=str, required=True, help='설정 파일 경로 (config.yaml)')
+    args = parser.parse_args()
+
+    with open(args.config, 'r') as f:
+        cfg = yaml.safe_load(f)
+    
+    predict_mode(cfg)
 
 if __name__ == '__main__':
     main()

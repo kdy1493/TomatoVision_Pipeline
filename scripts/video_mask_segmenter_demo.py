@@ -2,7 +2,7 @@
 비디오 입력 → YOLO → FastSAM → 이진 마스크 영상 출력 파이프라인 (patched)
 
 사용법:
-python scripts/video_mask_pipeline.py --config configs/video_mask_pipeline.yaml
+python scripts/video_mask_segmenter_demo.py --config configs/video_masksegment_pipeline.yaml
 """
 import os
 import autorootcwd

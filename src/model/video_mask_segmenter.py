@@ -2,12 +2,12 @@
 VideoMaskSegmenter 모듈
 
 YOLO 객체 탐지 + FastSAM 세그멘테이션을 결합한 동적 마스킹 클래스
-video_mask_pipeline.py의 핵심 로직을 재사용하며, ImageSegmenter와 호환되는 인터페이스 제공
+video_mask_segmenter_demo.py의 핵심 로직을 재사용하며, ImageSegmenter와 호환되는 인터페이스 제공
 
 사용 예:
     segmenter = VideoMaskSegmenter(
-        yolo_model_path="model/yolo11n.pt",
-        fastsam_model_path="model/FastSAM-s.pt"
+        yolo_model_path="weight/yolo12n.pt",
+        fastsam_model_path="weight/FastSAM-s.pt"
     )
     mask = segmenter.get_mask(rgb_image)  # (H, W) 이진 마스크 반환
 """
@@ -30,8 +30,8 @@ class VideoMaskSegmenter:
     """
     
     def __init__(self, 
-                 yolo_model_path: str = "model/yolo11n.pt",
-                 fastsam_model_path: str = "model/FastSAM-s.pt",
+                 yolo_model_path: str = "weight/trained_yolo12n.pt",
+                 fastsam_model_path: str = "weight/FastSAM-s.pt",
                  device: str = None,
                  yolo_confidence_threshold: float = 0.25,
                  yolo_input_size: int = 640):
@@ -40,9 +40,9 @@ class VideoMaskSegmenter:
         
         Args:
             yolo_model_path (str): YOLO 모델 파일 경로
-                                   예: "model/yolo11n.pt", "model/yolo12n.pt"
+                                   예: "weight/trained_yolo12n.pt"
             fastsam_model_path (str): FastSAM 모델 파일 경로
-                                      예: "model/FastSAM-s.pt"
+                                      예: "weight/FastSAM-s.pt"
             device (str): 실행 디바이스 ('cuda', 'cpu', 또는 None)
                          None이면 GPU 자동 선택 (사용 가능 시)
             yolo_confidence_threshold (float): YOLO 신뢰도 임계값 (0.0~1.0)

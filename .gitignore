@@ -9,8 +9,8 @@ wheels/
 # Virtual environments
 .venv
 
-# 모델 폴더는 올라가야함 - model/ 제외하지 않음
-# .pt, .pth 파일은 model/ 폴더 안에서는 허용
+# weight 폴더와 가중치 파일들은 git에 포함
+# .pt, .pth 파일은 weight/ 폴더 안에서 허용됨
 
 # Experiment results (large files)
 yolo_exp/
@@ -20,7 +20,8 @@ wandb/
 mlruns/
 
 # 데이터 제외 규칙 (exp_res_1024x576 제외하고 제외)
-data/notebook_data/
+data/notebook_data/*
+!data/notebook_data/tomato_image.jpg
 data/tomato_data/laboro-tomato/
 data/tomato_data/tomato_video/exp_res_512x288/
 data/tomato_data/tomato_video/exp_res_2048x1152/

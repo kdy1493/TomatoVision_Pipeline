@@ -93,7 +93,7 @@ def log_description():
     description = """
     ### ZED ROS Bag Visualizer
 
-    This viewer displays the pre-processed output from the `preprocess_edit.py` script.
+    This viewer displays the pre-processed output from the `rosbag_preprocess.py` script.
 
     - **3D View**:
       - Shows the camera's trajectory.
