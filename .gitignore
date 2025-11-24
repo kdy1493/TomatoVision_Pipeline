@@ -20,19 +20,19 @@ wandb/
 mlruns/
 
 # 데이터 제외 규칙 (exp_res_1024x576 제외하고 제외)
-data/notebook_data/*
-!data/notebook_data/tomato_image.jpg
+# data/notebook_data는 개별 파일 규칙으로 제어
 data/tomato_data/laboro-tomato/
 data/tomato_data/tomato_video/exp_res_512x288/
 data/tomato_data/tomato_video/exp_res_2048x1152/
 data/tomato_data/tomato_video/*.mp4
-!data/tomato_data/tomato_video/exp_res_1024x576/
-!docs/pipeline_diagram.png
+data/tomato_data/tomato_video/exp_res_1024x576/
 
 # 기타 미디어 제외
 *.jpg
+!data/notebook_data/tomato_image.jpg  # 노트북 샘플 이미지는 포함
 *.jpeg
 *.png
+!docs/*.png  # docs 폴더의 이미지는 포함
 *.gif
 *.bmp
 *.tiff
