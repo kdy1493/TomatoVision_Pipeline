@@ -21,7 +21,7 @@ mlruns/
 
 # 데이터 제외 규칙 (exp_res_1024x576 제외하고 제외)
 # data/notebook_data는 개별 파일 규칙으로 제어
-data/tomato_data/laboro-tomato/
+
 data/tomato_data/tomato_video/exp_res_512x288/
 data/tomato_data/tomato_video/exp_res_2048x1152/
 data/tomato_data/tomato_video/*.mp4
