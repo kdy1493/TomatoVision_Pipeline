@@ -29,7 +29,7 @@ data/tomato_data/tomato_video/exp_res_1024x576/
 
 # 기타 미디어 제외
 *.jpg
-!docs/*  # docs 폴더 하위 모든 파일 포함
+!docs/*  
 !data/notebook_data/*
 *.jpeg
 *.png
