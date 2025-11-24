@@ -26,6 +26,17 @@ visualization:
   traj_radius: 0.001
   baseline_m: 0.12
 
+  use_segmentation_type: "video_mask"  # "video_mask" (YOLO+FastSAM) 또는 "birefnet"
+  yolo_model_path: "weight/trained_yolo12n.pt"
+  fastsam_model_path: "weight/FastSAM-s.pt"
+  yolo_conf_thres: 0.85
+  yolo_imgsz: 640
+  segmentation_device: null  # null이면 자동 선택 (cuda 가능 시 cuda)
+    # 3D 바운딩박스 시각화 설정
+  show_3d_bbox: true        # 3D 바운딩박스 표시 여부
+  show_bbox_labels: true    # 바운딩박스 라벨 표시 여부
+  bbox_line_radius: 0.003   # 바운딩박스 라인 두께
+
 # Model paths
 models:
   disparity_weights_path: "models/model_best_bp2.pth"

@@ -52,21 +52,20 @@ class ViewerPipeline:
         seg_type = self.vis_config.get("use_segmentation_type", "birefnet")
         use_segmentation = self.vis_config.get("use_segmentation", False)
         
-        if use_segmentation:
-            if seg_type == "video_mask":
-                print("[INFO] Using VideoMaskSegmenter (YOLO + FastSAM)")
-                yolo_path = self.vis_config.get("yolo_model_path", "weight/trained_yolo12n.pt")
-                fastsam_path = self.vis_config.get("fastsam_model_path", "weight/FastSAM-s.pt")
-                device = self.vis_config.get("segmentation_device", None)
-                conf_thres = self.vis_config.get("yolo_conf_thres", 0.25)
-                imgsz = self.vis_config.get("yolo_imgsz", 640)
-                self.segmenter = VideoMaskSegmenter(
-                    yolo_model_path=yolo_path,
-                    fastsam_model_path=fastsam_path,
-                    device=device,
-                    yolo_confidence_threshold=conf_thres,
-                    yolo_input_size=imgsz
-                )
+        if use_segmentation and seg_type == "video_mask":
+            print("[INFO] Using VideoMaskSegmenter (YOLO + FastSAM)")
+            yolo_path = self.vis_config.get("yolo_model_path", "weight/trained_yolo12n.pt")
+            fastsam_path = self.vis_config.get("fastsam_model_path", "weight/FastSAM-s.pt")
+            device = self.vis_config.get("segmentation_device", None)
+            conf_thres = self.vis_config.get("yolo_conf_thres", 0.25)
+            imgsz = self.vis_config.get("yolo_imgsz", 640)
+            self.segmenter = VideoMaskSegmenter(
+                yolo_model_path=yolo_path,
+                fastsam_model_path=fastsam_path,
+                device=device,
+                yolo_confidence_threshold=conf_thres,
+                yolo_input_size=imgsz
+            )
         else:
             print("[INFO] Using DummySegmenter (segmentation disabled)")
             self.segmenter = DummySegmenter()
