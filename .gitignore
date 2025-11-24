@@ -27,6 +27,7 @@ data/tomato_data/tomato_video/exp_res_512x288/
 data/tomato_data/tomato_video/exp_res_2048x1152/
 data/tomato_data/tomato_video/*.mp4
 !data/tomato_data/tomato_video/exp_res_1024x576/
+!docs/pipeline_diagram.png
 
 # 기타 미디어 제외
 *.jpg
