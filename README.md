@@ -1,7 +1,9 @@
 # 🍅 TomatoVision3D Pipeline
 
-스마트팜 토마토 수확 로봇을 위한 **“2D 기반 3D 인식 파이프라인(Stereo-2D Vision-based 3D Localization Pipeline)”** 구현 레포지토리입니다.  
-YOLO(Detection) · FastSAM(Segmentation) · FoundationStereo(Depth Estimation) · ZED ROS2 Bag Processing · Rerun 3D Visualization을 하나의 통합 흐름으로 구성하였습니다. 
+스마트팜 토마토 수확 로봇을 위한 
+**“2D 기반 3D 인식 파이프라인(Stereo-2D Vision-based 3D Localization Pipeline)”** 
+을 구현한 레포지토리입니다.  
+YOLO(Detection) · FastSAM(Segmentation) · FoundationStereo(Depth Estimation) · ZED ROS2 Bag Processing · Rerun 3D Visualization을 하나의 통합 흐름으로 구성했습니다. 
 
 본 파이프라인은 토마토 객체의 2D 탐지 및 인스턴스 분할 결과를 기반으로 깊이 정보를 결합하여, **3D Point Cloud 생성 → 3D 위치 계산 → 시각화**까지 한 번에 수행합니다.
 
